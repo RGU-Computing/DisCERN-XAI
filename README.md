@@ -46,10 +46,9 @@ Bibtex:
 <br>
 <br>
 
+
+<center>This research is funded by the <a href="https://isee4xai.com">iSee project</a> which received funding from EPSRC under the grant number EP/V061755/1. iSee is part of the <a href="https://www.chistera.eu/">CHIST-ERA pathfinder programme</a> for European coordinated research on future and emerging information and communication technologies.</center>
 <img align="left" src="isee.png" alt="drawing" height="50"/>
 <img align="right" src="chistera.png" alt="drawing" height="50"/><br>
-<br>
-<br>
-<center>This research is funded by the <a href="https://isee4xai.com">iSee project</a> which received funding from EPSRC under the grant number EP/V061755/1. iSee is part of the <a href="https://www.chistera.eu/">CHIST-ERA pathfinder programme</a> for European coordinated research on future and emerging information and communication technologies.</center>
 
 
