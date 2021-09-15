@@ -1,7 +1,8 @@
 # DisCERN-XAI
 DisCERN: Discovering Counterfactual Explanations using Relevance Features from Neighbourhoods
 
-
+## Installing DisCERN
+DisCERN supports Python 3+. The stable version of DisCERN is available on PyPI (https://pypi.org/project/discern-xai/).
 
 
 
