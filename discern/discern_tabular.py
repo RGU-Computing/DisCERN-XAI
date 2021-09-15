@@ -69,9 +69,9 @@ class DisCERN:
                                                               feature_names=self.feature_names,
                                                               class_names=self.class_names,
                                                               discretize_continuous=True)
-        elif self.rel_ex == 'SHAP':
-            self.shap_explainer = shap.TreeExplainer(self.model)
-            self.lime_explainer = None
+        # elif self.rel_ex == 'SHAP':
+        #     self.shap_explainer = shap.TreeExplainer(self.model)
+        #     self.lime_explainer = None
         else:
             raise ValueError("Invalid Relevance Explainer!")
 
@@ -94,7 +94,6 @@ class DisCERN:
 
         if self.rel_ex == 'LIME':
             if self.pivot == 'Q':
-
                 weights_map = self.lime_explainer.explain_instance(norm_test_instance,
                                                               self.model.predict_proba,
                                                               num_features=len(self.feature_names),
@@ -109,12 +108,22 @@ class DisCERN:
             else:
                 raise ValueError("Invalid Pivot! Please use Q for Query or N for NUN.")
         # elif self.rel_ex == 'SHAP':
-        #     i_exp = pd.DataFrame([test_instance], columns=self.feature_names)
-        #     shap_values = self.shap_explainer.shap_values(i_exp)
-        #     if test_label == 1:
-        #         _weights = [(i,w) for i,w in enumerate(shap_values[1][0])]
+        #     if self.pivot == 'Q':
+        #         i_exp = pd.DataFrame([test_instance], columns=self.feature_names)
+        #         shap_values = self.shap_explainer.shap_values(i_exp)
+        #         if test_label == 1:
+        #             _weights = [(i,w) for i,w in enumerate(shap_values[1][0])]
+        #         else:
+        #             _weights = [(i,w) for i,w in enumerate(shap_values[0][0])]
+        #     elif self.pivot == 'N':
+        #         i_exp = pd.DataFrame([nun_data], columns=self.feature_names)
+        #         shap_values = self.shap_explainer.shap_values(i_exp)
+        #         if test_label == 1:
+        #             _weights = [(i,w) for i,w in enumerate(shap_values[1][0])]
+        #         else:
+        #             _weights = [(i,w) for i,w in enumerate(shap_values[0][0])]
         #     else:
-        #         _weights = [(i,w) for i,w in enumerate(shap_values[0][0])]
+        #         raise ValueError("Invalid Pivot! Please use Q for Query or N for NUN.")
         else:
             raise ValueError("Invalid Relevance Explainer!")
 
