@@ -1,4 +1,4 @@
-# discern-xai
+# DisCERN-XAI
 DisCERN: Discovering Counterfactual Explanations using Relevance Features from Neighbourhoods
 
 
