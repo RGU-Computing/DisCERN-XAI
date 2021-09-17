@@ -3,10 +3,10 @@ from lime.lime_tabular import LimeTabularExplainer
 import pandas as pd
 import copy
 from discern import util
+from discern.discern_base import DisCERN
 from sklearn.preprocessing import MinMaxScaler
 
-
-class DisCERN:
+class DisCERNTabular(DisCERN):
     """
     DisCERN class for tabular data and sklearn classifier
     """
@@ -21,12 +21,9 @@ class DisCERN:
         :param threshold: threshold to consider two feature values are different; default is 0.0
 
         """
-        self.model = model
-        self.rel_ex = rel
-        self.pivot = p
-        self.threshold = threshold
+        super().__init__(model, rel, p, threshold)
 
-    def init_data(self, train_data, train_labels, feature_names, class_names):
+    def _init_data(self, train_data, train_labels, feature_names, class_names, cat_feature_indices, **kwargs):
         """
         Init Data method
 
@@ -34,27 +31,12 @@ class DisCERN:
         :param train_labels: list of train dataset labels; shape=(num_instances, )
         :param feature_names: list of feature names; shape=(num_features, )
         :param class_names: list of class_names; shape=(num_classes, )
+        :param cat_feature_indices: list of indices where feature is categorical; shape=(num_cat_features, )
 
         """
-        self.train_data = train_data
-        self.train_labels = train_labels
-
+        self.cat_feature_indices = cat_feature_indices
         self.scalar = MinMaxScaler()
         self.norm_train_data= self.scalar.fit_transform(self.train_data)
-
-        self.feature_names = feature_names
-        self.class_names = class_names
-
-        if len(self.train_data) == 0 or len(self.train_labels) == 0:
-            raise ValueError("DisCERN requires train dataset!")
-        if len(self.feature_names) == 0:
-            raise ValueError("DisCERN requires feature names!")
-        if len(self.class_names) == 0:
-            raise ValueError("DisCERN requires class names!")
-        if len(self.class_names) != len(set(self.train_labels)):
-            raise ValueError("Mismatch between class names and number of classes!")
-        if len(self.feature_names) != self.train_data.shape[1]:
-            raise ValueError("Mismatch between feature names and training data shape!")
 
         # if all validations pass, we can proceed to initialising the feature relevance explainer
         self.init_rel()
@@ -75,22 +57,24 @@ class DisCERN:
         else:
             raise ValueError("Invalid Relevance Explainer!")
 
-    def find_cf(self, test_instance, test_label):
+    def find_cf(self, test_instance, test_label, desired_class='opposite', **kwargs):
         """
         Find Counterfactual method
 
         :param test_instance: query as a list of feature values
         :param test_label: class label predicted by the blackbox for the query
+        :param desired_class: class label of the counterfactual; opposite or class label
 
         :returns: a counterfactual data instance as a list of feature values
         :returns: the number of feature changes i.e. sparsity
         :returns: the amount of feature change i.e. proximity
         """
         norm_test_instance = self.scalar.transform([test_instance])[0]
+
         sparsity = 0.0
         proximity = 0.0
 
-        nun_data, nun_label = util.nun(self.train_data, self.train_labels, norm_test_instance, test_label, len(self.train_data))
+        nun_data, nun_label = util.nun(self.norm_train_data, self.train_labels, norm_test_instance, test_label, self.class_names.index(desired_class))
 
         if self.rel_ex == 'LIME':
             if self.pivot == 'Q':
@@ -134,23 +118,44 @@ class DisCERN:
         now_index = 0
         changes = 0
         amounts = 0
+        print("test_class: "+str(test_label))
         while True:
             val_x = x_adapted[indices[now_index]]
             val_nun = nun_data[indices[now_index]]
             # val_col = self.feature_names[indices[now_index]] # to use for causality
 
-            if abs(val_x - val_nun) <= self.threshold:
-                None
+            if indices[now_index] in self.cat_feature_indices:
+                if val_x == val_nun: 
+                    print('in val_x == val_nun for cat')
+                    # None
+                else:
+                    print('in val_x != val_nun for cat')
+                    x_adapted[indices[now_index]] = nun_data[indices[now_index]]
+                    changes +=1
+                    amounts += 1
             else:
-                x_adapted[indices[now_index]] = nun_data[indices[now_index]]
-                changes +=1
-                amounts += abs(val_x - val_nun)
+                if abs(val_x - val_nun) <= self.threshold:
+                    print('in val_x == val_nun for numeric')
+                    # None
+                else:
+                    print('in val_x != val_nun for numeric')
+                    x_adapted[indices[now_index]] = nun_data[indices[now_index]]
+                    changes +=1
+                    amounts += abs(val_x - val_nun)
             new_class = self.model.predict([x_adapted])[0]
+            print('new_class: '+str(new_class))
             now_index += 1
-            if new_class != test_label:
-                sparsity = changes
-                proximity = amounts
-                break
+            if desired_class == 'opposite' and new_class != test_label:
+                    sparsity = changes
+                    proximity = amounts
+                    break
+            elif desired_class != 'opposite' and self.class_names[new_class] == desired_class:
+                    sparsity = changes
+                    proximity = amounts
+                    break
             if now_index >= len(self.feature_names):
                 break
         return x_adapted, sparsity, proximity
+
+    def show_cf(self, test_instance, test_label, cf, cf_label, **kwargs):
+        None
