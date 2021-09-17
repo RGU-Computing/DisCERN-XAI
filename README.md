@@ -14,7 +14,6 @@ DisCERN requires the following packages:<br>
 `numpy`<br>
 `pandas`<br>
 `lime`<br>
-`shap`<br>
 `scikit-learn`
 
 
