@@ -19,7 +19,9 @@ DisCERN requires the following packages:<br>
 
 ### Getting Started with DisCERN
 
-Examples using the Adult Income dataset is in the test folder. 
+Binary Classification example using the Adult Income dataset and sklearn classifiers is in tests/test_adult_income.py
+
+Multi-class Classification example using the Cancer risk dataset and sklearn classifiers is in tests/test_cancer_risk.py
 
 ### Citing
 
