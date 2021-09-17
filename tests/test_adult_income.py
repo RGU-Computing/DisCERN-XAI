@@ -148,7 +148,7 @@ def test_adult_income_svm():
 
     # indices = np.random.choice(x_test.shape[0], 2, replace=False)
     x_test = x_test[:10]
-    y_test = rfx.predict(x_test[:10])
+    y_test = svm.predict(x_test[:10])
 
     # print(x_test.shape)
     # print(y_test.shape)
