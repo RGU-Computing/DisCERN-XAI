@@ -14,14 +14,15 @@ DisCERN requires the following packages:<br>
 `numpy`<br>
 `pandas`<br>
 `lime`<br>
+`shap`<br>
 `scikit-learn`
 
 
 ### Getting Started with DisCERN
 
-Binary Classification example using the Adult Income dataset and sklearn classifiers is in tests/test_adult_income.py
+Binary Classification example using the Adult Income dataset and RandomForest classifier is in tests/test_adult_income.py
 
-Multi-class Classification example using the Cancer risk dataset and sklearn classifiers is in tests/test_cancer_risk.py
+Multi-class Classification example using the Cancer risk dataset and RandomForest classifier is in tests/test_cancer_risk.py
 
 ### Citing
 
