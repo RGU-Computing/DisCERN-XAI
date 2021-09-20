@@ -1,6 +1,5 @@
-from lime.lime_tabular import LimeTabularExplainer
-# import shap
-import pandas as pd
+from discern.fre_lime import FeatureRelevanceLIME
+from discern.fre_shap import FeatureRelevanceSHAP
 import copy
 from discern import util
 from discern.discern_base import DisCERN
@@ -47,13 +46,9 @@ class DisCERNTabular(DisCERN):
 
         """
         if self.rel_ex == 'LIME':
-           self.lime_explainer = LimeTabularExplainer(self.train_data,
-                                                              feature_names=self.feature_names,
-                                                              class_names=self.class_names,
-                                                              discretize_continuous=True)
-        # elif self.rel_ex == 'SHAP':
-        #     self.shap_explainer = shap.TreeExplainer(self.model)
-        #     self.lime_explainer = None
+           self.feature_rel = FeatureRelevanceLIME(self.model, self.feature_names, train_data=self.train_data, class_names=self.class_names)
+        elif self.rel_ex == 'SHAP':
+            self.feature_rel = FeatureRelevanceSHAP(self.model, self.feature_names)
         else:
             raise ValueError("Invalid Relevance Explainer!")
 
@@ -74,43 +69,15 @@ class DisCERNTabular(DisCERN):
         sparsity = 0.0
         proximity = 0.0
 
-        nun_data, nun_label = util.nun(self.norm_train_data, self.train_labels, norm_test_instance, test_label, self.class_names.index(desired_class))
+        nun_data, nun_label = util.nun(self.norm_train_data, self.train_labels, norm_test_instance, test_label, desired_class if desired_class == 'opposite' else self.class_names.index(desired_class))
 
-        if self.rel_ex == 'LIME':
-            if self.pivot == 'Q':
-                weights_map = self.lime_explainer.explain_instance(norm_test_instance,
-                                                              self.model.predict_proba,
-                                                              num_features=len(self.feature_names),
-                                                              top_labels=1).as_map()
-                _weights = weights_map[list(weights_map.keys())[0]]
-            elif self.pivot == 'N':
-                weights_map = self.lime_explainer.explain_instance(nun_data,
-                                                              self.model.predict_proba,
-                                                              num_features=len(self.feature_names),
-                                                              top_labels=1).as_map()
-                _weights = weights_map[list(weights_map.keys())[0]]
-            else:
-                raise ValueError("Invalid Pivot! Please use Q for Query or N for NUN.")
-        # elif self.rel_ex == 'SHAP':
-        #     if self.pivot == 'Q':
-        #         i_exp = pd.DataFrame([test_instance], columns=self.feature_names)
-        #         shap_values = self.shap_explainer.shap_values(i_exp)
-        #         if test_label == 1:
-        #             _weights = [(i,w) for i,w in enumerate(shap_values[1][0])]
-        #         else:
-        #             _weights = [(i,w) for i,w in enumerate(shap_values[0][0])]
-        #     elif self.pivot == 'N':
-        #         i_exp = pd.DataFrame([nun_data], columns=self.feature_names)
-        #         shap_values = self.shap_explainer.shap_values(i_exp)
-        #         if test_label == 1:
-        #             _weights = [(i,w) for i,w in enumerate(shap_values[1][0])]
-        #         else:
-        #             _weights = [(i,w) for i,w in enumerate(shap_values[0][0])]
-        #     else:
-        #         raise ValueError("Invalid Pivot! Please use Q for Query or N for NUN.")
+        if self.pivot == 'Q':
+            _weights = self.feature_rel.explain_instance(norm_test_instance, test_label)
+        elif self.pivot == 'N':
+            _weights = self.feature_rel.explain_instance(nun_data, nun_label)
         else:
-            raise ValueError("Invalid Relevance Explainer!")
-
+            raise ValueError("Invalid Pivot! Please use Q for Query or N for NUN.")
+        
         _weights_sorted = sorted(_weights, key=lambda tup: -tup[1])
         indices = [i for i,w in _weights_sorted]
 
@@ -118,7 +85,7 @@ class DisCERNTabular(DisCERN):
         now_index = 0
         changes = 0
         amounts = 0
-        print("test_class: "+str(test_label))
+        # print("test_class: "+str(test_label))
         while True:
             val_x = x_adapted[indices[now_index]]
             val_nun = nun_data[indices[now_index]]
@@ -126,24 +93,20 @@ class DisCERNTabular(DisCERN):
 
             if indices[now_index] in self.cat_feature_indices:
                 if val_x == val_nun: 
-                    print('in val_x == val_nun for cat')
-                    # None
+                    None
                 else:
-                    print('in val_x != val_nun for cat')
                     x_adapted[indices[now_index]] = nun_data[indices[now_index]]
                     changes +=1
                     amounts += 1
             else:
                 if abs(val_x - val_nun) <= self.threshold:
-                    print('in val_x == val_nun for numeric')
-                    # None
+                    None
                 else:
-                    print('in val_x != val_nun for numeric')
                     x_adapted[indices[now_index]] = nun_data[indices[now_index]]
                     changes +=1
                     amounts += abs(val_x - val_nun)
             new_class = self.model.predict([x_adapted])[0]
-            print('new_class: '+str(new_class))
+            # print('new_class: '+str(new_class))
             now_index += 1
             if desired_class == 'opposite' and new_class != test_label:
                     sparsity = changes
