@@ -4,6 +4,8 @@ import copy
 from discern import util
 from discern.discern_base import DisCERN
 from sklearn.preprocessing import MinMaxScaler
+import torch
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 class DisCERNTabular(DisCERN):
     """
@@ -120,5 +122,48 @@ class DisCERNTabular(DisCERN):
                 break
         return x_adapted, sparsity, proximity
 
-    def show_cf(self, test_instance, test_label, cf, cf_label, **kwargs):
-        None
+    def show_cf(self, test_instance, cf, **kwargs):
+
+        PATH = "../discern/NLG_model/model.pt"
+        if torch.cuda.is_available():
+            dev = torch.device("cuda:0") 
+        else:
+            dev = torch.device("cpu")
+
+        tokenizer = T5Tokenizer.from_pretrained('t5-base')
+        model = T5ForConditionalGeneration.from_pretrained('t5-base', return_dict=True)
+        model.eval()
+        model.to(dev)
+        model.load_state_dict(torch.load(PATH))
+
+        l_test = []
+        for i in test_instance:
+            l_test.append(str(i))
+            l_test.append(str(test_instance[i]))
+        test_instance = '|'.join(l_test)
+        input_ids = tokenizer.encode(test_instance, return_tensors="pt")
+        input_ids=input_ids.to(dev)
+        outputs = model.generate(input_ids,
+            do_sample=True, 
+            max_length=50, 
+            top_k=50, 
+            top_p=0.95)
+        out_test = tokenizer.decode(outputs[0])
+
+        l_cf = []
+        for i in cf:
+            l_cf.append(str(i))
+            l_cf.append(str(cf[i]))
+        cf = '|'.join(l_cf)
+        input_ids = tokenizer.encode(cf, return_tensors="pt")
+        input_ids=input_ids.to(dev)
+        outputs = model.generate(input_ids,
+            do_sample=True, 
+            max_length=50, 
+            top_k=50, 
+            top_p=0.95)
+        out_cf = tokenizer.decode(outputs[0])
+
+        print(f"Instance: {out_test}")
+        print(f"Counterfactual: {out_cf}")
+        
