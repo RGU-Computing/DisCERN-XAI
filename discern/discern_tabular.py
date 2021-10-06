@@ -104,9 +104,19 @@ class DisCERNTabular(DisCERN):
                 if abs(val_x - val_nun) <= self.threshold:
                     None
                 else:
-                    x_adapted[indices[now_index]] = nun_data[indices[now_index]]
-                    changes +=1
-                    amounts += abs(val_x - val_nun)
+                    if self.feature_names[indices[now_index]]=="age" and nun_data[indices[now_index]] > x_adapted[indices[now_index]]:
+                        None
+                    elif self.feature_names[indices[now_index]] in [' Black', ' Other', ' White']:
+                        None
+                    elif self.feature_names[indices[now_index]]==' Self-emp-inc' and nun_data[indices[now_index]]==" Local-gov":
+                        None
+                    elif self.feature_names[indices[now_index]]==' Self-emp-inc' and nun_data[indices[now_index]]==" State-gov":
+                        None
+                    else:
+                        x_adapted[indices[now_index]] = nun_data[indices[now_index]]
+                        changes +=1
+                        amounts += abs(val_x - val_nun)
+
             new_class = self.model.predict([x_adapted])[0]
             # print('new_class: '+str(new_class))
             now_index += 1
