@@ -1,6 +1,7 @@
 numpy
 pandas
 scikit-learn
-heapq
 tqdm
 lime
+transformers==4.11.2
+sentencepiece==0.1.96
