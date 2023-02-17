@@ -40,7 +40,7 @@ Bibtex:
       eprint={2109.05800},
       archivePrefix={arXiv},
       primaryClass={cs.LG}
-}
+    }
 
 
 <br>
