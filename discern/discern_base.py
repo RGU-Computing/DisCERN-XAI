@@ -39,8 +39,8 @@ class DisCERN(ABC):
             raise ValueError("DisCERN requires feature names.")
         if len(self.labels) == 0:
             raise ValueError("DisCERN requires class names.")
-        if len(self.labels) != len(set(self.train_labels)):
-            raise ValueError("Mismatch between class names and number of classes.")
+        # if len(self.labels) != len(set(self.train_labels)):
+        #     raise ValueError("Mismatch between class names and number of classes.")
         if len(self.feature_names) != self.train_data.shape[1]:
             raise ValueError("Mismatch between number of features and training data.")
 

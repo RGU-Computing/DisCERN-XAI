@@ -22,15 +22,14 @@ DisCERN requires the following packages:<br>
 | Attribution Explainer | scikit-learn | TensorFlow/Keras | PyTorch |
 |-----------------------|--------------|------------------|---------|
 | LIME                  | &check;      | &check;          | N/A     | 
-| SHAP                  | &check;      | &check;          | N/A     | 
+| SHAP                  | &check; shap.TreeExplainer     | &check;  shap.DeepExplainer       | N/A     | 
 | Integrated Gradients  | &cross;      | &check;          | N/A     | 
-
 
 ## Getting Started with DisCERN
 
-An example of the Adult Income dataset using RandomForest and Keras Deep Neural Net classifiers are <a href="/tests/adult_income.py">here</a>
+Binary Classification example on the Adult Income dataset using RandomForest and Keras Deep Neural Net classifiers are <a href="/tests/adult_income.py">here</a>
 
-<!--Multi-class Classification example using the Cancer risk dataset and RandomForest classifier <a href="/tests/cancer.py">here</a>-->
+Multi-class Classification example on the Cancer risk dataset using RandomForest and Keras Deep Neural Net classifiers are <a href="/tests/cancer.py">here</a>
 
 ## Citing
 

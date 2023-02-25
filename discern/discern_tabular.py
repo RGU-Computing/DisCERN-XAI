@@ -44,7 +44,7 @@ class DisCERNTabular(DisCERN):
         if self.attrib == 'LIME':
            self.feature_attrib = FeatureAttributionLIME(self.model, self.feature_names, train_data=self.train_data, labels=self.labels)
         elif self.attrib == 'SHAP':
-            self.feature_attrib = FeatureAttributionSHAP(self.model, self.feature_names)
+            self.feature_attrib = FeatureAttributionSHAP(self.model, self.feature_names, train_data=self.train_data)
         elif self.attrib == 'IntG':
             self.feature_attrib = FeatureAttributionIntG(self.model)
         else:
