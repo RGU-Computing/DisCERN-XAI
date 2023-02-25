@@ -42,14 +42,14 @@ Please cite it follows:
 
 Bibtex:
 
-    @inproceedings{wiratunga2021discern,
-        title={Discern: discovering counterfactual explanations using relevance features from neighbourhoods},
-        author={Wiratunga, Nirmalie and Wijekoon, Anjana and Nkisi-Orji, Ikechukwu and Martin, Kyle and Palihawadana, Chamath and Corsar, David},
-        booktitle={2021 IEEE 33rd International Conference on Tools with Artificial Intelligence (ICTAI)},
-        pages={1466--1473},
-        year={2021},
-        organization={IEEE}
-    }
+    @misc{wiratunga2021discerndiscovering,
+      title={DisCERN:Discovering Counterfactual Explanations using Relevance Features from Neighbourhoods}, 
+      author={Nirmalie Wiratunga and Anjana Wijekoon and Ikechukwu Nkisi-Orji and Kyle Martin and Chamath Palihawadana and David Corsar},
+      year={2021},
+      eprint={2109.05800},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
 
     @inproceedings{wijekoon2022close,
         title={How Close Is Too Close? The Role of Feature Attributions in Discovering Counterfactual Explanations},
