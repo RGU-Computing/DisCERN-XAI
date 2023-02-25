@@ -1,6 +1,5 @@
 numpy
 pandas
 scikit-learn
-heapq
 tqdm
 lime

@@ -5,64 +5,53 @@ class DisCERN(ABC):
     DisCERN class for tabular data and sklearn classifier
     """
 
-    def __init__(self, model, rel, p, threshold=0.0):
+    def __init__(self, model, attrib, threshold=0.0):
         """
         Init method
 
         :param model: a trained ML model; currently supports sklearn backend
-        :param rel: preferred Fature Relevance Explainer; currently supports LIME
-        :param p: preferred pivot; either Q for Query or N for NUN; default is Query
+        :param attrib: preferred Fature Attribution Explainer; currently supports LIME
         :param threshold: threshold to consider two feature values are different; default is 0.0
 
         """
         self.model = model
-        self.rel_ex = rel
-        self.pivot = p
+        self.attrib = attrib
         self.threshold = threshold
 
-    def init_data(self, train_data, train_labels, feature_names, class_names, **kwargs):
+    def init_data(self, train_data, train_labels, feature_names, labels, **kwargs):
         """
         Init Data method
 
         :param train_data: train dataset as a numpy array; shape=(num_instances, num_features)
         :param train_labels: list of train dataset labels; shape=(num_instances, )
         :param feature_names: list of feature names; shape=(num_features, )
-        :param class_names: list of class_names; shape=(num_classes, )
+        :param labels: list of labels; shape=(num_classes, )
 
         """
         self.train_data = train_data
         self.train_labels = train_labels
         self.feature_names = feature_names
-        self.class_names = class_names
+        self.labels = labels
 
         if len(self.train_data) == 0 or len(self.train_labels) == 0:
-            raise ValueError("DisCERN requires train dataset!")
+            raise ValueError("DisCERN requires a train dataset.")
         if len(self.feature_names) == 0:
-            raise ValueError("DisCERN requires feature names!")
-        if len(self.class_names) == 0:
-            raise ValueError("DisCERN requires class names!")
-        if len(self.class_names) != len(set(self.train_labels)):
-            raise ValueError("Mismatch between class names and number of classes!")
+            raise ValueError("DisCERN requires feature names.")
+        if len(self.labels) == 0:
+            raise ValueError("DisCERN requires class names.")
+        if len(self.labels) != len(set(self.train_labels)):
+            raise ValueError("Mismatch between class names and number of classes.")
         if len(self.feature_names) != self.train_data.shape[1]:
-            raise ValueError("Mismatch between feature names and training data shape!")
+            raise ValueError("Mismatch between number of features and training data.")
 
-        self._init_data(train_data, train_labels, feature_names, class_names, **kwargs)
+        self._init_data(**kwargs)
 
     @abstractmethod
-    def _init_data(self, train_data, train_labels, feature_names, class_names, **kwargs):
-        """
-        Internal Init Data method
-
-        :param train_data: train dataset as a numpy array; shape=(num_instances, num_features)
-        :param train_labels: list of train dataset labels; shape=(num_instances, )
-        :param feature_names: list of feature names; shape=(num_features, )
-        :param class_names: list of class_names; shape=(num_classes, )
-
-        """
+    def _init_data(self, **kwargs):
         pass
 
     @abstractmethod
-    def find_cf(self, test_instance, test_label, **kwargs):
+    def find_cf(self, test_instance, test_label, cf_label='opposite', **kwargs):
         pass
 
     @abstractmethod
